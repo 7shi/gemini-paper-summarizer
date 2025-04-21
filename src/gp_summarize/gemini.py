@@ -1,7 +1,10 @@
-import logging, math, time, re
+import os, logging, math, time, re
 from datetime import timedelta
 from tqdm import tqdm
 from google.api_core import retry
+from google import genai
+
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 # Display retry status
 logger = logging.getLogger("google.api_core.retry")
@@ -13,7 +16,7 @@ interval = 60 + 1  # with margin
 timestamps = []
 
 # Limit the number of requests per minute
-def generate_content(model, max_rpm, *args):
+def generate_content(model, config, max_rpm, *contents):
     # Wait due to rate limiting
     if 0 < max_rpm <= len(timestamps):
         t = timestamps[-max_rpm]
@@ -27,28 +30,33 @@ def generate_content(model, max_rpm, *args):
                     time.sleep(1)
 
     # Get the response
-    time1, time2, time3, rtext, chunk = generate_content_retry(model, args)
+    time1, time2, time3, rtext, chunk = generate_content_retry(model, config, contents)
     timestamps.append(time3)
     if not rtext.endswith("\n"):
         print(flush=True)
     rtext = rtext.rstrip() + "\n"
 
     # Get the statistics
-    chunk_dict = chunk.to_dict()
-    if "usage_metadata" in chunk_dict:
-        usage = chunk_dict["usage_metadata"]
+    chunk_dict = chunk.to_json_dict()
+    usage = {}
+    if usage_metadata := chunk_dict.get("usage_metadata"):
+        for k, v in usage_metadata.items():
+            if isinstance(v, int):
+                usage[k] = v
         usage["prompt_eval_duration"    ] = int((time2 - time1) * 1000)  # in ms
         usage["candidates_eval_duration"] = int((time3 - time2) * 1000)  # in ms
         set_stats(usage)
-    else:
-        usage = {}
 
     return rtext, usage
 
 @retry.Retry(initial=10)
-def generate_content_retry(model, args):
+def generate_content_retry(model, config, contents):
     time1 = time.monotonic()
-    response = model.generate_content(args, stream=True)
+    response = client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=config
+    )
     time2 = None
     rtext = ""
     for chunk in response:

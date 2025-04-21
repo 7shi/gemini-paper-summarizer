@@ -31,18 +31,15 @@ if args.output:
 from dotenv import load_dotenv
 load_dotenv()
 
-import google.generativeai as genai
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
 from .summarize import summarize
 from . import gemini
 from .lang import selector
 
 lang_module = selector.init(args.language)
 
-model_name = args.model
-if not model_name.startswith("models/"):
-    model_name = "models/" + args.model
+model = args.model
+if not model.startswith("models/"):
+    model = "models/" + args.model
 
 generation_config = {
     "temperature": 0.5,
@@ -58,7 +55,7 @@ def main():
             print()
         print(f"==== PDF {i}/{pdfs}: {path}")
         summary, output, stats = summarize(
-            model_name,
+            model,
             generation_config,
             lang_module.system_instruction,
             args.rpm,

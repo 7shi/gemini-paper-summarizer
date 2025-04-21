@@ -7,6 +7,7 @@ readme = "README.md"
 license = { text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication" }
 requires-python = ">=3.10"
 dependencies = [
+    "google-genai>=1.11.0",
     "google-generativeai>=0.8.3",
     "python-dotenv>=1.0.1",
 ]

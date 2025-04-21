@@ -1,11 +1,11 @@
-import os, json, mimetypes
-import google.generativeai as genai
+import os, json, mimetypes, time
+from google import genai
 
 from .section import Section
 from . import gemini
 
 def summarize(
-    model_name,
+    model,
     generation_config,
     system_instruction,
     max_rpm,
@@ -77,15 +77,24 @@ def summarize(
             else:
                 # Upload the file (and cache it)
                 if not file:
-                    mime_type = mimetypes.guess_type(path)[0] or "text/plain"
-                    file = genai.upload_file(path, mime_type=mime_type)
+                    file_config = genai.types.UploadFileConfig(
+                        display_name=os.path.basename(path),
+                        mime_type=mimetypes.guess_type(path)[0] or "text/plain",
+                    )
+                    file = gemini.client.files.upload(file=path, config=file_config)
+                    while file.state.name == "PROCESSING":
+                        print("Waiting for file to be processed.")
+                        time.sleep(2)
+                        file = gemini.client.files.get(name=file.name)
                     print(f"Uploaded file '{file.display_name}' as: {file.uri}")
                     if use_cache:
                         print("Caching file...")
-                        cache = genai.caching.CachedContent.create(
-                            model=model_name,
-                            system_instruction=system_instruction,
-                            contents=[file],
+                        cache = gemini.client.caches.create(
+                            model=model,
+                            config=genai.types.CreateCachedContentConfig(
+                                system_instruction=system_instruction,
+                                contents=[file],
+                            ),
                         )
 
                 # Prepare the prompt
@@ -96,16 +105,17 @@ def summarize(
 
                 # Get the response and statistics
                 if cache:
-                    model = genai.GenerativeModel.from_cached_content(cache)
-                    model.generation_config = generation_config
-                    rtext, usage = gemini.generate_content(model, max_rpm, prompt)
-                else:
-                    model = genai.GenerativeModel(
-                        model_name=model_name,
-                        generation_config=generation_config,
-                        system_instruction=system_instruction,
+                    config = genai.types.GenerateContentConfig(
+                        cached_content=cache.name,
+                        **generation_config
                     )
-                    rtext, usage = gemini.generate_content(model, max_rpm, file, prompt)
+                    rtext, usage = gemini.generate_content(model, config, max_rpm, prompt)
+                else:
+                    config = genai.types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        **generation_config
+                    )
+                    rtext, usage = gemini.generate_content(model, config, max_rpm, file, prompt)
 
                 # Get the section structure
                 if i == len(prompts) and "```json" in rtext:
@@ -143,10 +153,10 @@ def summarize(
             result += title + "\n\n" + rtext
     finally:
         if cache:
-            cache.delete()
+            gemini.client.caches.delete(cache.name)
             print("Deleted cache")
         if file:
-            genai.delete_file(file.name)
+            gemini.client.files.delete(name=file.name)
             print(f"Deleted file '{file.display_name}' from: {file.uri}")
 
     gemini.set_stats(stats)
