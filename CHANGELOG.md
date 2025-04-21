@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.0] - 2025-04-22
+### Changed
+- Migrated client library from `google-generativeai` to `google-genai`
+- Refactored retry mechanism and removed the `--rpm` option
+- Updated default model to `gemini-2.5-flash-preview-04-17`
+
 ## [0.7.0] - 2025-02-19
 ### Added
 - Support for input file formats beyond PDF
