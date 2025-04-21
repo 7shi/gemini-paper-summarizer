@@ -8,7 +8,6 @@ def summarize(
     model,
     generation_config,
     system_instruction,
-    max_rpm,
     lang_module,
     path,
     output=None,
@@ -109,13 +108,13 @@ def summarize(
                         cached_content=cache.name,
                         **generation_config
                     )
-                    rtext, usage = gemini.generate_content(model, config, max_rpm, prompt)
+                    rtext, usage = gemini.generate_content(model, config, prompt)
                 else:
                     config = genai.types.GenerateContentConfig(
                         system_instruction=system_instruction,
                         **generation_config
                     )
-                    rtext, usage = gemini.generate_content(model, config, max_rpm, file, prompt)
+                    rtext, usage = gemini.generate_content(model, config, file, prompt)
 
                 # Get the section structure
                 if i == len(prompts) and "```json" in rtext:

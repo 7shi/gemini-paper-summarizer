@@ -1,37 +1,12 @@
-import os, logging, math, time, re
+import sys, os, time, re
 from datetime import timedelta
-from tqdm import tqdm
-from google.api_core import retry
 from google import genai
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-# Display retry status
-logger = logging.getLogger("google.api_core.retry")
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
-
-interval = 60 + 1  # with margin
-
-timestamps = []
-
-# Limit the number of requests per minute
-def generate_content(model, config, max_rpm, *contents):
-    # Wait due to rate limiting
-    if 0 < max_rpm <= len(timestamps):
-        t = timestamps[-max_rpm]
-        if (td := time.monotonic() - t) < interval:
-            wait = math.ceil((interval - td) * 10)
-            print(f"Waiting {wait/10} seconds...")
-            if (wait_1 := wait % 10):
-                time.sleep(wait_1 / 10)
-            if wait >= 10:
-                for _ in tqdm(range(wait // 10)):
-                    time.sleep(1)
-
+def generate_content(model, config, *contents):
     # Get the response
     time1, time2, time3, rtext, chunk = generate_content_retry(model, config, contents)
-    timestamps.append(time3)
     if not rtext.endswith("\n"):
         print(flush=True)
     rtext = rtext.rstrip() + "\n"
@@ -49,24 +24,46 @@ def generate_content(model, config, max_rpm, *contents):
 
     return rtext, usage
 
-@retry.Retry(initial=10)
 def generate_content_retry(model, config, contents):
-    time1 = time.monotonic()
-    response = client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=config
-    )
-    time2 = None
-    rtext = ""
-    for chunk in response:
-        if not time2:
-            time2 = time.monotonic()
-        chunk_text = chunk.text
-        print(chunk_text, end="", flush=True)
-        rtext += chunk_text
-    time3 = time.monotonic()
-    return time1, time2, time3, rtext, chunk
+    for _ in range(5):
+        try:
+            time1 = time.monotonic()
+            response = client.models.generate_content_stream(
+                model=model,
+                config=config,
+                contents=contents,
+            )
+            time2 = None
+            rtext = ""
+            for chunk in response:
+                if not time2:
+                    time2 = time.monotonic()
+                if chunk.text:
+                    print(chunk.text, end="", flush=True)
+                    rtext += chunk.text
+            time3 = time.monotonic()
+            return time1, time2, time3, rtext, chunk
+        except genai.errors.APIError as e:
+            if hasattr(e, "code") and e.code in [429, 500, 503]:
+                print(e, file=sys.stderr)
+                delay = 15
+                if e.code == 429:
+                    details = getattr(e, "details", {}).get("error", {}).get("details", [])
+                    rd = None
+                    for d in details:
+                        if "retryDelay" in d:
+                            rd = d["retryDelay"]
+                            break
+                    if rd and (m := re.match(r"^(\d+)s$", rd)):
+                        delay = int(m.group(1)) or delay
+                for i in range(delay, -1, -1):
+                    print(f"\rRetrying... {i}s ", end="", file=sys.stderr, flush=True)
+                    time.sleep(1)
+                print(file=sys.stderr)
+                continue
+            else:
+                raise
+    raise RuntimeError("Max retries exceeded.")
 
 def set_stats(st):
     dur1 = st.get("prompt_eval_duration"    , 0)

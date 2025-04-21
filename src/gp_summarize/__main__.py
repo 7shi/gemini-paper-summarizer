@@ -6,7 +6,6 @@ parser.add_argument('-d', '--output-dir', help='Output directory for intermediat
 parser.add_argument('-o', '--output', help='Output file for summary')
 parser.add_argument('-l', '--language', choices=['de', 'en', 'es', 'fr', 'ja', 'ko', 'zh'], default=None, help='Specify the output language')
 parser.add_argument('-m', '--model', default='gemini-2.0-flash', help='Specify the Gemini model to use')
-parser.add_argument('--rpm', type=int, default=15, help='Maximum requests per minute (default: 15)')
 parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('--suffix', help='Suffix to add to the output file name')
 parser.add_argument('--ccache', action='store_true', default=False, help='Enable context caching')
@@ -58,7 +57,6 @@ def main():
             model,
             generation_config,
             lang_module.system_instruction,
-            args.rpm,
             lang_module,
             path,
             args.output,
