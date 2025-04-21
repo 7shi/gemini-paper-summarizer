@@ -112,7 +112,7 @@ uv run gp_summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}]
   - Default: Based on system language settings
 
 - `-m, --model`: Optional. Specify the Gemini model to use
-  - Default: gemini-2.0-flash
+  - Default: gemini-2.5-flash-preview-04-17
 
 - `--suffix`: Optional. Add custom suffix to the output filename
   - Useful for differentiating the output filename from the source filename
