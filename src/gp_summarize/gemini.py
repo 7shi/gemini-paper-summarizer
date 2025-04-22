@@ -1,4 +1,4 @@
-import sys, os, time, re
+import sys, os, time, re, mimetypes
 from datetime import timedelta
 from google import genai
 
@@ -22,6 +22,22 @@ def generate_content(model, config, *contents):
         usage["candidates_eval_duration"] = int((time3 - time2) * 1000)  # in ms
         set_stats(usage)
 
+    return rtext, usage
+
+def generate_content_with_config(model, generation_config, system_instruction, cache, file, prompt):
+    """Generates content using the specified model and configuration."""
+    if cache:
+        config = genai.types.GenerateContentConfig(
+            cached_content=cache.name,
+            **generation_config
+        )
+        rtext, usage = generate_content(model, config, prompt)
+    else:
+        config = genai.types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            **generation_config
+        )
+        rtext, usage = generate_content(model, config, file, prompt)
     return rtext, usage
 
 def generate_content_retry(model, config, contents):
@@ -115,3 +131,33 @@ def show_stats(st, prefix=""):
     for k, v in iter_stats(st):
         w = timedelta(milliseconds=v) if k.endswith("_duration") else v
         print(f"{prefix}{k.ljust(maxlen)}: {w}")
+
+def upload_file(path):
+    file = client.files.upload(
+        file=path,
+        config=genai.types.UploadFileConfig(
+            display_name=os.path.basename(path),
+            mime_type=mimetypes.guess_type(path)[0] or "text/plain",
+        ),
+    )
+    while file.state.name == "PROCESSING":
+        print("Waiting for file to be processed.")
+        time.sleep(2)
+        file = client.files.get(name=file.name)
+    return file
+
+def delete_file(file):
+    return client.files.delete(name=file.name)
+
+def create_cache(model, system_instruction, contents):
+    cache = client.caches.create(
+        model=model,
+        config=genai.types.CreateCachedContentConfig(
+            system_instruction=system_instruction,
+            contents=contents,
+        ),
+    )
+    return cache
+
+def delete_cache(cache):
+    return client.caches.delete(cache.name)
