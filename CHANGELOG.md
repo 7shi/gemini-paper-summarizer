@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.1] - 2025-05-21
+### Changed
+- Updated default model to `gemini-2.5-flash-preview-05-20`
+
 ## [0.8.0] - 2025-04-22
 ### Changed
 - Migrated client library from `google-generativeai` to `google-genai`
