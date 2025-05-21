@@ -145,6 +145,6 @@ Summarize in a specific language:
 uv run gp_summarize -l ja paper.pdf
 ```
 
-## License
+## Related Information
 
-CC0 1.0 Universal
+arXiv papers can be summarized using [alphaXiv](https://www.alphaxiv.org/) (see the "Blog" tab for each paper).
