@@ -28,24 +28,14 @@ def generate_content(model, config, *contents):
 
     return rtext, usage
 
-def generate_content_with_config(model, generation_config, system_instruction, cache, file, prompt):
-    """Generates content using the specified model and configuration."""
+def generate_content_with_config(model, generation_config, system_instruction, file, prompt):
     thinking_config = genai.types.ThinkingConfig(include_thoughts=True)
-    if cache:
-        config = genai.types.GenerateContentConfig(
-            cached_content=cache.name,
-            thinking_config=thinking_config,
-            **generation_config
-        )
-        rtext, usage = generate_content(model, config, prompt)
-    else:
-        config = genai.types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            thinking_config=thinking_config,
-            **generation_config
-        )
-        rtext, usage = generate_content(model, config, file, prompt)
-    return rtext, usage
+    config = genai.types.GenerateContentConfig(
+        system_instruction=system_instruction,
+        thinking_config=thinking_config,
+        **generation_config
+    )
+    return generate_content(model, config, file, prompt)
 
 def generate_content_retry(model, config, contents):
     for _ in range(5):
@@ -181,16 +171,3 @@ def upload_file(path):
 
 def delete_file(file):
     return client.files.delete(name=file.name)
-
-def create_cache(model, system_instruction, contents):
-    cache = client.caches.create(
-        model=model,
-        config=genai.types.CreateCachedContentConfig(
-            system_instruction=system_instruction,
-            contents=contents,
-        ),
-    )
-    return cache
-
-def delete_cache(cache):
-    return client.caches.delete(cache.name)

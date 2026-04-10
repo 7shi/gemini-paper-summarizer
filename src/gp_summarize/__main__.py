@@ -11,7 +11,6 @@ parser.add_argument('-l', '--language', choices=['de', 'en', 'es', 'fr', 'ja', '
 parser.add_argument('-m', '--model', default='gemini-3-flash-preview', help='Specify the Gemini model to use')
 parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('--suffix', help='Suffix to add to the output file name')
-parser.add_argument('--ccache', action='store_true', default=False, help='Enable context caching')
 args = parser.parse_args()
 
 import os
@@ -66,7 +65,6 @@ def main():
             args.output_dir,
             args.suffix,
             f"PDF {i}/{pdfs}, ",
-            args.ccache,
         )
         with open(output, "w", encoding="utf-8") as f:
             f.write(summary)

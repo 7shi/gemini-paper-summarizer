@@ -13,7 +13,6 @@ def summarize(
     output_dir=None,
     output_suffix=None,
     prefix="",
-    use_cache=False,
 ):
     prompts = lang_module.prompts
     sprompt = lang_module.sprompt
@@ -30,7 +29,6 @@ def summarize(
         outdir = os.path.join(output_dir, os.path.basename(outdir))
         output = os.path.join(output_dir, os.path.basename(output))
     file = None
-    cache = None
     result = ""
     i = 0
     sections = Section()
@@ -73,17 +71,10 @@ def summarize(
                     k += 1
                 rtext = "\n".join(lines[k:]) + "\n"
             else:
-                # Upload the file (and cache it)
+                # Upload the file
                 if not file:
                     file = gemini.upload_file(path)
                     print(f"Uploaded file '{file.display_name}' as: {file.uri}")
-                    if use_cache:
-                        print("Caching file...")
-                        cache = gemini.create_cache(
-                            model=model,
-                            system_instruction=system_instruction,
-                            contents=[file],
-                        )
 
                 # Prepare the prompt
                 plines = prompt.rstrip().splitlines()
@@ -93,7 +84,7 @@ def summarize(
 
                 # Get the response and statistics
                 rtext, usage = gemini.generate_content_with_config(
-                    model, generation_config, system_instruction, cache, file, prompt
+                    model, generation_config, system_instruction, file, prompt
                 )
 
                 # Get the section structure
@@ -131,9 +122,6 @@ def summarize(
                 result += "\n"
             result += title + "\n\n" + rtext
     finally:
-        if cache:
-            gemini.delete_cache(cache)
-            print("Deleted cache")
         if file:
             gemini.delete_file(file)
             print(f"Deleted file '{file.display_name}' from: {file.uri}")
