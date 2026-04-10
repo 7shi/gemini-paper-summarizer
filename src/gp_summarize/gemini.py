@@ -4,6 +4,10 @@ from google import genai
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
+TEXT_MIME_EXTENSIONS = {
+    ".tex": "text/plain",
+}
+
 def generate_content(model, config, *contents):
     # Get the response
     time1, time2, time3, rtext, chunk = generate_content_retry(model, config, contents)
@@ -132,12 +136,18 @@ def show_stats(st, prefix=""):
         w = timedelta(milliseconds=v) if k.endswith("_duration") else v
         print(f"{prefix}{k.ljust(maxlen)}: {w}")
 
+def get_upload_mime_type(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext in TEXT_MIME_EXTENSIONS:
+        return TEXT_MIME_EXTENSIONS[ext]
+    return mimetypes.guess_type(path)[0] or "text/plain"
+
 def upload_file(path):
     file = client.files.upload(
         file=path,
         config=genai.types.UploadFileConfig(
             display_name=os.path.basename(path),
-            mime_type=mimetypes.guess_type(path)[0] or "text/plain",
+            mime_type=get_upload_mime_type(path),
         ),
     )
     while file.state.name == "PROCESSING":
