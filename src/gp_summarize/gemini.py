@@ -1,5 +1,4 @@
 import sys, os, time, re, mimetypes
-from datetime import timedelta
 from google import genai
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
@@ -10,7 +9,7 @@ TEXT_MIME_EXTENSIONS = {
 
 def generate_content(model, config, *contents):
     # Get the response
-    time1, time2, time3, rtext, chunk = generate_content_retry(model, config, contents)
+    rtext, chunk = generate_content_retry(model, config, contents)
     if not rtext.endswith("\n"):
         print(flush=True)
     rtext = rtext.rstrip() + "\n"
@@ -22,9 +21,6 @@ def generate_content(model, config, *contents):
         for k, v in usage_metadata.items():
             if isinstance(v, int):
                 usage[k] = v
-        usage["prompt_eval_duration"    ] = int((time2 - time1) * 1000)  # in ms
-        usage["candidates_eval_duration"] = int((time3 - time2) * 1000)  # in ms
-        set_stats(usage)
 
     return rtext, usage
 
@@ -40,20 +36,16 @@ def generate_content_with_config(model, generation_config, system_instruction, f
 def generate_content_retry(model, config, contents):
     for _ in range(5):
         try:
-            time1 = time.monotonic()
             response = client.models.generate_content_stream(
                 model=model,
                 config=config,
                 contents=list(contents),
             )
-            time2 = None
             rtext = ""
             thoughts_shown = False
             answer_shown = False
             chunk = None
             for chunk in response:
-                if not time2:
-                    time2 = time.monotonic()
                 if (hasattr(chunk, "candidates") and chunk.candidates
                         and chunk.candidates[0].content
                         and chunk.candidates[0].content.parts):
@@ -74,8 +66,7 @@ def generate_content_retry(model, config, contents):
                 elif chunk.text:
                     print(chunk.text, end="", flush=True)
                     rtext += chunk.text
-            time3 = time.monotonic()
-            return time1, time2, time3, rtext, chunk
+            return rtext, chunk
         except genai.errors.APIError as e:
             if hasattr(e, "code") and e.code in [429, 500, 503]:
                 print(e, file=sys.stderr)
@@ -98,14 +89,6 @@ def generate_content_retry(model, config, contents):
                 raise
     raise RuntimeError("Max retries exceeded.")
 
-def set_stats(st):
-    dur1 = st.get("prompt_eval_duration"    , 0)
-    dur2 = st.get("candidates_eval_duration", 0)
-    if dur1 < 1 or dur2 < 1:
-        return
-    st["prompt_eval_rate"    ] = f'{st["prompt_token_count"    ] / (dur1 / 1000):.2f} tps'
-    st["candidates_eval_rate"] = f'{st["candidates_token_count"] / (dur2 / 1000):.2f} tps'
-
 def get_kv(line):
     if m := re.match(r"^([a-zA-Z_]+): (.*)$", line):
         k, v = m.group(1), m.group(2)
@@ -126,11 +109,8 @@ def iter_stats(st):
     keys = [
         "cached_content_token_count",
         "prompt_token_count",
-        "prompt_eval_duration",
-        "prompt_eval_rate",
+        "thoughts_token_count",
         "candidates_token_count",
-        "candidates_eval_duration",
-        "candidates_eval_rate",
         "total_token_count",
     ]
     st_keys = list(st.keys())
@@ -146,8 +126,7 @@ def show_stats(st, prefix=""):
         return
     maxlen = max(len(k) for k in st)
     for k, v in iter_stats(st):
-        w = timedelta(milliseconds=v) if k.endswith("_duration") else v
-        print(f"{prefix}{k.ljust(maxlen)}: {w}")
+        print(f"{prefix}{k.ljust(maxlen)}: {v}")
 
 def get_upload_mime_type(path):
     ext = os.path.splitext(path)[1].lower()
