@@ -91,7 +91,7 @@ The section structure will be displayed in both JSON format and as a hierarchica
 ## Command-Line Options
 
 ```
-uv run gp_summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}] [-m MODEL] [--suffix SUFFIX] [--version] paths [paths ...]
+uv run gp-summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}] [-m MODEL] [--version] [--suffix SUFFIX] [--no-think] paths [paths ...]
 ```
 
 - `paths`: **Required** Path(s) to one or more files to summarize
@@ -116,6 +116,8 @@ uv run gp_summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}]
 
 - `--suffix`: Optional. Add custom suffix to the output filename
   - Useful for differentiating the output filename from the source filename
+
+- `--no-think`: Disable thinking mode
 
 - `--version`: Display version information
 

@@ -7,7 +7,7 @@ readme = "README.md"
 license = { text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication" }
 requires-python = ">=3.10"
 dependencies = [
-    "google-genai>=1.72.0",
+    "llm7shi",
     "python-dotenv>=1.0.1",
 ]
 
@@ -26,6 +26,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gp_summarize"]
+
+[tool.uv.sources]
+llm7shi = { git = "https://github.com/7shi/llm7shi.git" }
 
 [project.scripts]
 gp-summarize = "gp_summarize.__main__:main"

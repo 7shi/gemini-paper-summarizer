@@ -127,5 +127,4 @@ def summarize(
             gemini.delete_file(file)
             print(f"Deleted file '{file.display_name}' from: {file.uri}")
 
-    gemini.set_stats(stats)
     return result, output, stats
