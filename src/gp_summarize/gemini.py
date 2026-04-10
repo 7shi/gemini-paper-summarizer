@@ -30,15 +30,18 @@ def generate_content(model, config, *contents):
 
 def generate_content_with_config(model, generation_config, system_instruction, cache, file, prompt):
     """Generates content using the specified model and configuration."""
+    thinking_config = genai.types.ThinkingConfig(include_thoughts=True)
     if cache:
         config = genai.types.GenerateContentConfig(
             cached_content=cache.name,
+            thinking_config=thinking_config,
             **generation_config
         )
         rtext, usage = generate_content(model, config, prompt)
     else:
         config = genai.types.GenerateContentConfig(
             system_instruction=system_instruction,
+            thinking_config=thinking_config,
             **generation_config
         )
         rtext, usage = generate_content(model, config, file, prompt)
@@ -55,10 +58,30 @@ def generate_content_retry(model, config, contents):
             )
             time2 = None
             rtext = ""
+            thoughts_shown = False
+            answer_shown = False
+            chunk = None
             for chunk in response:
                 if not time2:
                     time2 = time.monotonic()
-                if chunk.text:
+                if (hasattr(chunk, "candidates") and chunk.candidates
+                        and chunk.candidates[0].content
+                        and chunk.candidates[0].content.parts):
+                    for part in chunk.candidates[0].content.parts:
+                        if not part.text:
+                            continue
+                        elif part.thought:
+                            if not thoughts_shown:
+                                print("\n[Thinking]", flush=True)
+                                thoughts_shown = True
+                            print(part.text, end="", flush=True)
+                        else:
+                            if thoughts_shown and not answer_shown:
+                                print("\n[Answer]", flush=True)
+                                answer_shown = True
+                            print(part.text, end="", flush=True)
+                            rtext += part.text
+                elif chunk.text:
                     print(chunk.text, end="", flush=True)
                     rtext += chunk.text
             time3 = time.monotonic()
