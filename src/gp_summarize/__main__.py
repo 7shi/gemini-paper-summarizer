@@ -1,11 +1,14 @@
 import argparse
 from .__init__ import name, __version__
-parser = argparse.ArgumentParser(description='Summarize academic papers using Gemini API')
+parser = argparse.ArgumentParser(
+    description="Summarize academic papers using Gemini API",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
 parser.add_argument('paths', nargs='+', help='Path(s) to one or more files')
 parser.add_argument('-d', '--output-dir', help='Output directory for intermediate files')
 parser.add_argument('-o', '--output', help='Output file for summary')
 parser.add_argument('-l', '--language', choices=['de', 'en', 'es', 'fr', 'ja', 'ko', 'zh'], default=None, help='Specify the output language')
-parser.add_argument('-m', '--model', default='gemini-2.5-flash-preview-05-20', help='Specify the Gemini model to use')
+parser.add_argument('-m', '--model', default='gemini-3-flash-preview', help='Specify the Gemini model to use')
 parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('--suffix', help='Suffix to add to the output file name')
 parser.add_argument('--ccache', action='store_true', default=False, help='Enable context caching')
