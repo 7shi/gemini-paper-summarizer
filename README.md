@@ -66,7 +66,7 @@ Note: If you find it difficult to set up the environment locally, please refer t
    ```bash
    GEMINI_API_KEY=your_api_key_here
    ```
-   Be careful not to commit `.env` files or share them accidentally.
+   Note that `.env` files are excluded by this repository's `.gitignore` and will not be accidentally committed, but they still require careful handling and are not recommended — prefer `dotenvx` instead.
 
 ## Usage
 
