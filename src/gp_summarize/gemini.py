@@ -51,7 +51,7 @@ def generate_content_retry(model, config, contents):
             response = client.models.generate_content_stream(
                 model=model,
                 config=config,
-                contents=contents,
+                contents=list(contents),
             )
             time2 = None
             rtext = ""
