@@ -91,7 +91,7 @@ The section structure will be displayed in both JSON format and as a hierarchica
 ## Command-Line Options
 
 ```
-uv run gp-summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}] [-m MODEL] [--version] [--suffix SUFFIX] [--no-think] paths [paths ...]
+uv run gp-summarize [-h] [options] paths [paths ...]
 ```
 
 - `paths`: **Required** Path(s) to one or more files to summarize
@@ -100,6 +100,10 @@ uv run gp-summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}]
     - If you need to process them together, use an external tool to combine ([Repomix](https://repomix.com/) recommended)
   - Wildcards (`*`) are supported on Windows
     - On POSIX systems, wildcards are processed by the shell
+
+- `-h`: Show help message and exit
+
+- `--version`: Display version information
 
 - `-d, --output-dir`: Optional. Specify the output directory for intermediate files
   - Useful when processing multiple files
@@ -118,8 +122,6 @@ uv run gp-summarize [-h] [-d OUTPUT_DIR] [-o OUTPUT] [-l {de,en,es,fr,ja,ko,zh}]
   - Useful for differentiating the output filename from the source filename
 
 - `--no-think`: Disable thinking mode
-
-- `--version`: Display version information
 
 ### Examples
 

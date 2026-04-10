@@ -5,11 +5,11 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument('paths', nargs='+', help='Path(s) to one or more files')
+parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('-d', '--output-dir', help='Output directory for intermediate files')
 parser.add_argument('-o', '--output', help='Output file for summary')
 parser.add_argument('-l', '--language', choices=['de', 'en', 'es', 'fr', 'ja', 'ko', 'zh'], default=None, help='Specify the output language')
 parser.add_argument('-m', '--model', default='gemini-flash-latest', help='Specify the Gemini model to use')
-parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('--suffix', help='Suffix to add to the output file name')
 parser.add_argument('--no-think', action='store_true', help='Disable thinking mode')
 args = parser.parse_args()
