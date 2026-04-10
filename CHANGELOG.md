@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.0] - 2026-04-11
+### Changed
+- Refactored to use `llm7shi` library, removing duplicate streaming/retry logic
+- Updated default model to `gemini-flash-latest`
+- Removed `--ccache` option; Gemini 2.5+ applies implicit KV caching automatically
+- Removed TPS measurement and added `thoughts_token_count` to stats display
+### Added
+- Thinking mode display support using `ThinkingConfig`
+- `--no-think` option to disable thinking mode
+- MIME type override for `.tex` files to ensure correct upload handling
+
 ## [0.8.1] - 2025-05-21
 ### Changed
 - Updated default model to `gemini-2.5-flash-preview-05-20`
