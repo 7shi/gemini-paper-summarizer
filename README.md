@@ -54,10 +54,19 @@ Note: If you find it difficult to set up the environment locally, please refer t
    ```
    uv sync
    ```
-3. Create a `.env` file in the project directory with your Gemini API key:
+3. Set your Gemini API key as an environment variable:
+   ```bash
+   export GEMINI_API_KEY=your_api_key_here
+   ```
+   On Windows PowerShell:
+   ```powershell
+   $env:GEMINI_API_KEY="your_api_key_here"
+   ```
+   If you cannot set environment variables directly, you can use a local `.env` file as a fallback:
    ```bash
    GEMINI_API_KEY=your_api_key_here
    ```
+   Be careful not to commit `.env` files or share them accidentally.
 
 ## Usage
 
