@@ -11,6 +11,7 @@ parser.add_argument('-l', '--language', choices=['de', 'en', 'es', 'fr', 'ja', '
 parser.add_argument('-m', '--model', default='gemini-flash-latest', help='Specify the Gemini model to use')
 parser.add_argument('--version', action='version', version=f'{name} {__version__}')
 parser.add_argument('--suffix', help='Suffix to add to the output file name')
+parser.add_argument('--no-think', action='store_true', help='Disable thinking mode')
 args = parser.parse_args()
 
 import os
@@ -65,6 +66,7 @@ def main():
             args.output_dir,
             args.suffix,
             f"PDF {i}/{pdfs}, ",
+            not args.no_think,
         )
         with open(output, "w", encoding="utf-8") as f:
             f.write(summary)

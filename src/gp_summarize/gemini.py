@@ -24,8 +24,8 @@ def generate_content(model, config, *contents):
 
     return rtext, usage
 
-def generate_content_with_config(model, generation_config, system_instruction, file, prompt):
-    thinking_config = genai.types.ThinkingConfig(include_thoughts=True)
+def generate_content_with_config(model, generation_config, system_instruction, file, prompt, think):
+    thinking_config = genai.types.ThinkingConfig(include_thoughts=think)
     config = genai.types.GenerateContentConfig(
         system_instruction=system_instruction,
         thinking_config=thinking_config,

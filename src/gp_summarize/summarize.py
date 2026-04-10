@@ -13,6 +13,7 @@ def summarize(
     output_dir=None,
     output_suffix=None,
     prefix="",
+    think=True,
 ):
     prompts = lang_module.prompts
     sprompt = lang_module.sprompt
@@ -84,7 +85,7 @@ def summarize(
 
                 # Get the response and statistics
                 rtext, usage = gemini.generate_content_with_config(
-                    model, generation_config, system_instruction, file, prompt
+                    model, generation_config, system_instruction, file, prompt, think
                 )
 
                 # Get the section structure
