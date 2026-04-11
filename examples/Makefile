@@ -1,4 +1,4 @@
-LANGS   := de en es fr ja ko zh
+LANGS   := de en eo es fr ja ko zh
 TARGET  := 1706.03762v7
 TARGETS := $(foreach lang,$(LANGS),$(TARGET)-$(lang).md)
 SRCPDF  := $(TARGET).pdf

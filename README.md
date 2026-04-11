@@ -4,7 +4,7 @@
 
 A command-line tool that uses Gemini API to generate summaries of academic papers.
 
-Supports output in multiple languages: Chinese, English, French, German, Japanese, Korean, and Spanish.
+Supports output in multiple languages: Chinese, English, Esperanto, French, German, Japanese, Korean, and Spanish.
 
 ## Examples
 
@@ -148,7 +148,7 @@ gp-summarize [options] paths [paths ...]
   - Can only be used with a single file
 
 - `-l, --language`: Optional. Specify the output language
-  - Supported languages: `de` (German), `en` (English), `es` (Spanish), `fr` (French), `ja` (Japanese), `ko` (Korean), `zh` (Chinese)
+  - Supported languages: `de` (German), `en` (English), `eo` (Esperanto), `es` (Spanish), `fr` (French), `ja` (Japanese), `ko` (Korean), `zh` (Chinese)
   - Default: Based on system language settings
 
 - `-m, --model`: Optional. Specify the Gemini model to use
