@@ -49,29 +49,56 @@ Note: If you find it difficult to set up the environment locally, please refer t
 
 ## Installation
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   uv sync
-   ```
-3. Set your Gemini API key as an environment variable:
-   ```bash
-   export GEMINI_API_KEY=your_api_key_here
-   ```
-   On Windows PowerShell:
-   ```powershell
-   $env:GEMINI_API_KEY="your_api_key_here"
-   ```
-   If you cannot set environment variables directly, you can use a local `.env` file as a fallback:
-   ```bash
-   GEMINI_API_KEY=your_api_key_here
-   ```
-   Note that `.env` files are excluded by this repository's `.gitignore` and will not be accidentally committed, but they still require careful handling and are not recommended — prefer [dotenvx](https://github.com/dotenvx/dotenvx) instead.
+### As a tool (recommended)
+
+Install as a tool:
+
+```bash
+uv tool install https://github.com/7shi/gemini-paper-summarizer.git
+```
+
+Add `~/.local/bin` to PATH if not already added:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Set your Gemini API key as an environment variable:
+
+```bash
+export GEMINI_API_KEY=your_api_key_here
+```
+
+### From source
+
+Source installation with uv:
+
+```bash
+git clone https://github.com/7shi/gemini-paper-summarizer.git
+cd gemini-paper-summarizer
+uv sync
+```
+
+**Note**: When using source installation, prefix all commands with `uv run` (e.g., `uv run gp-summarize`).
+
+Set your Gemini API key as an environment variable:
+
+```bash
+export GEMINI_API_KEY=your_api_key_here
+```
+
+If you cannot set environment variables directly, you can use a local `.env` file as a fallback:
+
+```bash
+GEMINI_API_KEY=your_api_key_here
+```
+
+Note that `.env` files are excluded by this repository's `.gitignore` and will not be accidentally committed, but they still require careful handling. For better security, prefer [dotenvx](https://github.com/dotenvx/dotenvx) (e.g., `dotenvx run -- uv run gp-summarize`).
 
 ## Usage
 
 ```bash
-uv run gp-summarize path/to/paper.pdf
+gp-summarize path/to/paper.pdf
 ```
 
 The tool will generate several markdown files with different types of summaries:
@@ -100,7 +127,7 @@ The section structure will be displayed in both JSON format and as a hierarchica
 ## Command-Line Options
 
 ```
-uv run gp-summarize [-h] [options] paths [paths ...]
+gp-summarize [options] paths [paths ...]
 ```
 
 - `paths`: **Required** Path(s) to one or more files to summarize
@@ -136,22 +163,22 @@ uv run gp-summarize [-h] [options] paths [paths ...]
 
 Summarize a single PDF:
 ```
-uv run gp_summarize paper.pdf
+gp-summarize paper.pdf
 ```
 
 Summarize multiple PDFs:
 ```
-uv run gp_summarize paper1.pdf paper2.pdf
+gp-summarize paper1.pdf paper2.pdf
 ```
 
 Specify an output directory:
 ```
-uv run gp_summarize -d ./outputs paper.pdf
+gp-summarize -d ./outputs paper.pdf
 ```
 
 Summarize in a specific language:
 ```
-uv run gp_summarize -l ja paper.pdf
+gp-summarize -l ja paper.pdf
 ```
 
 ## Related Information
