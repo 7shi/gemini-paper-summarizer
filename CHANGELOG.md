@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.1] - 2026-04-11
+### Added
+- Esperanto (`eo`) language support
+
 ## [0.9.0] - 2026-04-11
 ### Changed
 - Refactored to use `llm7shi` library, removing duplicate streaming/retry logic
