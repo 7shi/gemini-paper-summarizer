@@ -5,6 +5,9 @@ SRCPDF  := $(TARGET).pdf
 
 all: $(TARGETS)
 
+fix:
+	uv run fix_for_github.py *.md
+
 $(SRCPDF):
 	wget https://arxiv.org/pdf/$(TARGET) -O $@
 
